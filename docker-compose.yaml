@@ -1,0 +1,32 @@
+services:
+  # Banco de Dados Write (SQL)
+  cockroachdb:
+    image: cockroachdb/cockroach:v23.1.10
+    command: start-single-node --insecure
+    ports:
+      - "26257:26257" # Porta do DB
+      - "8081:8080"   # Dashboard UI (Acesse no navegador)
+    volumes:
+      - cockroach_data:/cockroach/cockroach-data
+
+  # Banco de Dados Read (NoSQL)
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # Message Broker (Event Broker)
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # Porta de mensagens
+      - "15672:15672" # Painel de controle (guest/guest)
+    volumes:
+      - rabbit_data:/var/lib/rabbitmq
+
+volumes:
+  cockroach_data:
+  mongo_data:
+  rabbit_data:

@@ -1,0 +1,11 @@
+node_modules
+dist
+bin
+tmp
+.git
+.vscode
+.idea
+*.log
+.env
+backend/vendor
+frontend/.angular

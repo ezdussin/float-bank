@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package ledger;
+
+option go_package = "github.com/enzodussin/float/proto/ledger";
+
+import "google/protobuf/timestamp.proto";
+
+service LedgerService {
+  // Command: Triggers a new transaction
+  rpc Transfer(TransferRequest) returns (TransferResponse);
+  
+  // Query: Gets the authoritative balance from the Write DB
+  rpc GetBalance(GetBalanceRequest) returns (GetBalanceResponse);
+}
+
+// The core "Command" for moving money
+message TransferRequest {
+  string from_account_id = 1;
+  string to_account_id = 2;
+  double amount = 3;
+  string idempotency_key = 4; // Crucial for FinTech
+  string description = 5;
+}
+
+message TransferResponse {
+  bool success = 1;
+  string transaction_id = 2;
+  string message = 3;
+}
+
+message GetBalanceRequest {
+  string account_id = 1;
+}
+
+message GetBalanceResponse {
+  string account_id = 1;
+  double balance = 2;
+  google.protobuf.Timestamp last_updated = 3;
+}
+
+// The "Event" structure for Event Sourcing
+// This is what will be published to RabbitMQ and saved in the Event Store
+message LedgerEvent {
+  string event_id = 1;
+  string account_id = 2;
+  enum EventType {
+    DEBIT = 0;
+    CREDIT = 1;
+  }
+  EventType type = 3;
+  double amount = 4;
+  google.protobuf.Timestamp created_at = 5;
+  string reference_id = 6; // The Transfer ID
+}
