@@ -23,8 +23,6 @@ func HandleLogin(repo *db.AuthRepository) http.HandlerFunc {
 			Password string `json:"password"`
 		}
 
-		log.Println(req)
-
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, "JSON inválido", http.StatusBadRequest)
 			return
@@ -35,8 +33,23 @@ func HandleLogin(repo *db.AuthRepository) http.HandlerFunc {
 			return
 		}
 
-		// Retorna o token para o Angular
-		json.NewEncoder(w).Encode(map[string]string{"token": token})
+		user, err := repo.GetUserByEmail(req.Email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+
+		response := map[string]interface{}{
+			"token": token,
+			"user": map[string]string{
+				"full_name": user.FullName,
+				"email":     user.Email,
+			},
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(response)
 	}
 }
 

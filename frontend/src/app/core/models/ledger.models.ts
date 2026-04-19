@@ -30,8 +30,8 @@ export interface TransferCommand {
 export interface AuthResponse {
   token: string;
   user: {
-    id: string;
-    fullName: string;
+    // id: string;
+    full_name: string;
     email: string;
   };
 }

@@ -4,9 +4,9 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angu
 import { Router, RouterLink } from '@angular/router';
 import { LedgerService } from '../../core/services/ledger.service';
 import { AuthService } from '../../core/services/auth.service';
-import { 
-  LucideArrowDownLeft, LucideWallet, LucideUser, LucideLock, 
-  LucideLoader2, LucideSend 
+import {
+  LucideArrowDownLeft, LucideWallet, LucideUser, LucideLock,
+  LucideLoader2, LucideSend
 } from '@lucide/angular';
 import { v4 as uuid } from 'uuid';
 
@@ -15,7 +15,7 @@ import { v4 as uuid } from 'uuid';
   standalone: true,
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule, RouterLink,
-    LucideArrowDownLeft, LucideWallet, LucideUser, LucideLock, 
+    LucideArrowDownLeft, LucideWallet, LucideUser, LucideLock,
     LucideLoader2, LucideSend
   ],
   template: `
@@ -43,10 +43,6 @@ import { v4 as uuid } from 'uuid';
                 <div class="flex items-center gap-4">
                   <div class="w-12 h-12 bg-indigo-600/20 rounded-xl flex items-center justify-center">
                     <svg lucideWallet class="w-6 h-6 text-indigo-400"></svg>
-                  </div>
-                  <div>
-                    <p class="font-bold">Authoritative Account</p>
-                    <p class="text-xs text-indigo-300/40">ID: {{ authService.currentUser()?.id }}</p>
                   </div>
                 </div>
                 <div class="text-right">
@@ -160,8 +156,8 @@ export class TransferComponent implements OnInit {
 
     // Ensure we have current data
     const user = this.authService.currentUser();
-    if (user?.id) {
-      this.ledgerService.fetchDashboardData(user.id).subscribe();
+    if (user?.email) {
+      this.ledgerService.fetchDashboardData(user.email).subscribe();
     }
   }
 

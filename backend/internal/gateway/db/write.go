@@ -101,3 +101,16 @@ func (r *AuthRepository) Register(u *models.User) error {
 
 	return tx.Commit()
 }
+
+func (r *AuthRepository) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	query := `SELECT full_name, email FROM users WHERE email = $1`
+	err := r.DB.QueryRow(query, email).Scan(&user.FullName, &user.Email)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("usuário não encontrado")
+		}
+		return nil, err
+	}
+	return &user, nil
+}

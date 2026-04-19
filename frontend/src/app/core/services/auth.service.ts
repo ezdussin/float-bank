@@ -2,8 +2,9 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, tap } from 'rxjs/operators';
-import { of, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { AuthResponse } from '../models/ledger.models';
+import { CookieService } from './cookie.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +12,13 @@ import { AuthResponse } from '../models/ledger.models';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private cookieService = inject(CookieService);
   private readonly baseUrl = 'http://localhost:8080/api/v1';
 
   // Signals for state management
   private authState = signal<{ token: string | null; user: AuthResponse['user'] | null }>({
-    token: typeof localStorage !== 'undefined' ? localStorage.getItem('float_token') : null,
-    user: typeof localStorage !== 'undefined' ? JSON.parse(localStorage.getItem('float_user') || 'null') : null
+    token: this.cookieService.get('float_token'),
+    user: JSON.parse(this.cookieService.get('float_user') || 'null')
   });
 
   // Computed signals for easy access
@@ -47,18 +49,14 @@ export class AuthService {
 
   logout() {
     this.authState.set({ token: null, user: null });
-    if (typeof localStorage !== 'undefined') {
-      localStorage.removeItem('float_token');
-      localStorage.removeItem('float_user');
-    }
+    this.cookieService.delete('float_token');
+    this.cookieService.delete('float_user');
     this.router.navigate(['/login']);
   }
 
   private setSession(response: AuthResponse) {
     this.authState.set({ token: response.token, user: response.user });
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('float_token', response.token);
-      localStorage.setItem('float_user', JSON.stringify(response.user));
-    }
+    this.cookieService.set('float_token', response.token, 7); // Set for 7 days
+    this.cookieService.set('float_user', JSON.stringify(response.user), 7);
   }
 }

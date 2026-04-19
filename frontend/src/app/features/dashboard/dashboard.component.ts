@@ -1,8 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { 
-  LucideUser, LucideLogOut, LucideWallet, LucideArrowUpRight, 
-  LucideSend, LucideHistory, LucideChevronRight, LucideLoader2, LucideArrowDownLeft 
+import {
+  LucideUser, LucideLogOut, LucideWallet, LucideArrowUpRight,
+  LucideSend, LucideHistory, LucideChevronRight, LucideLoader2, LucideArrowDownLeft
 } from '@lucide/angular';
 import { LedgerService } from '../../core/services/ledger.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -13,7 +13,7 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [
     CommonModule, RouterLink,
-    LucideUser, LucideLogOut, LucideWallet, LucideArrowUpRight, 
+    LucideUser, LucideLogOut, LucideWallet, LucideArrowUpRight,
     LucideSend, LucideHistory, LucideChevronRight, LucideLoader2, LucideArrowDownLeft
   ],
   template: `
@@ -23,7 +23,7 @@ import { RouterLink } from '@angular/router';
         <header class="flex justify-between items-center animate-in fade-in duration-500">
           <div>
             <h1 class="text-2xl font-bold tracking-tight">Financial Overview</h1>
-            <p class="text-slate-400 text-sm mt-1">Welcome back, {{ authService.currentUser()?.fullName }}</p>
+            <p class="text-slate-400 text-sm mt-1">Welcome back, {{ authService.currentUser()?.full_name }}</p>
           </div>
           <div class="flex items-center gap-4">
             <button class="bg-slate-800/50 p-3 rounded-2xl hover:bg-slate-800 transition-colors border border-white/5 relative">
@@ -148,8 +148,8 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     const user = this.authService.currentUser();
-    if (user?.id) {
-      this.ledgerService.fetchDashboardData(user.id).subscribe();
+    if (user?.email) {
+      this.ledgerService.fetchDashboardData(user.email).subscribe();
     }
   }
 

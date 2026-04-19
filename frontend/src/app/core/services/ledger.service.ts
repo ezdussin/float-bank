@@ -9,7 +9,7 @@ import { Transaction, UserAccount, TransferCommand } from '../models/ledger.mode
 })
 export class LedgerService {
   private http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080';
+  private readonly baseUrl = 'http://localhost:8080/api/v1';
 
   // State Management via Signals
   private accountState = signal<UserAccount | null>(null);
@@ -24,10 +24,10 @@ export class LedgerService {
 
   fetchDashboardData(accountId: string) {
     this.loadingState.set(true);
-    
+
     // In a CQRS architecture, we query the read-optimized views
     // Assuming the Gateway has these endpoints
-    return this.http.get<{ account: UserAccount; transactions: Transaction[] }>(`${this.baseUrl}/query/dashboard/${accountId}`).pipe(
+    return this.http.get<{ account: UserAccount; transactions: Transaction[] }>(`${this.baseUrl}/dashboard/${accountId}`).pipe(
       tap(data => {
         this.accountState.set(data.account);
         this.transactionsState.set(data.transactions);
