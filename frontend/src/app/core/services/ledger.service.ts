@@ -18,7 +18,10 @@ export class LedgerService {
 
   // Computed signals
   account = computed(() => this.accountState());
-  transactions = computed(() => this.transactionsState());
+  transactions = computed(() => this.transactionsState().map(tx => ({
+    ...tx,
+    amount: tx.type === 'DEBIT' ? tx.amount * -1 : tx.amount
+  })));
   isLoading = computed(() => this.loadingState());
   balance = computed(() => this.accountState()?.balance ?? 0);
   monthlyVariance = computed(() => this.accountState()?.monthly_variance ?? 0);

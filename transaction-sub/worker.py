@@ -31,7 +31,7 @@ def process_transfer(ch, method, properties, body):
             f"[*] Processando Transação {tx_id}: {sender_id} -> {receiver_id} | Valor: R$ {amount}"
         )
 
-        # 2. Criar as entradas de Histórico (Transactions)
+        # 2. Criar as entradas de Histórico (transactions_history)
         # Criamos duas visões: uma de débito para o remetente e uma de crédito para o destinatário
 
         history_entries = [
@@ -42,7 +42,7 @@ def process_transfer(ch, method, properties, body):
                 "amount": -amount,  # Negativo para o remetente
                 "type": "DEBIT",
                 "status": "SUCCESS",
-                "description": f"Enviado para {receiver_id} - {description}",
+                "description": description,
                 "createdAt": datetime.utcnow(),
             },
             {
@@ -52,14 +52,14 @@ def process_transfer(ch, method, properties, body):
                 "amount": amount,  # Positivo para o recebedor
                 "type": "CREDIT",
                 "status": "SUCCESS",
-                "description": f"Recebido de {sender_id} - {description}",
+                "description": description,
                 "createdAt": datetime.utcnow(),
             },
         ]
 
         # Insere no histórico (ignora se o ID já existir para garantir idempotência)
         for entry in history_entries:
-            db.transactions.update_one(
+            db.transactions_history.update_one(
                 {"id": entry["id"]}, {"$setOnInsert": entry}, upsert=True
             )
 
