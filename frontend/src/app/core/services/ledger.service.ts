@@ -24,12 +24,16 @@ export class LedgerService {
   })));
   isLoading = computed(() => this.loadingState());
   balance = computed(() => this.accountState()?.balance ?? 0);
-  monthlyVariance = computed(() => this.accountState()?.monthly_variance ?? 0);
 
   fetchDashboard() {
     this.loadingState.set(true);
 
-    return this.http.get<DashboardData>(`${this.baseUrl}/dashboard`, { headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` } }).pipe(
+    return this.http.get<DashboardData>(`${this.baseUrl}/dashboard`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    }).pipe(
       tap(data => {
         console.log(data)
         this.transactionsState.set(data?.recent_transactions || []);

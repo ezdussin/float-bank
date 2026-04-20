@@ -12,6 +12,7 @@ export interface Transaction {
   status: TransactionStatus;
   description: string;
   createdAt: Date | string;
+  receiver_email: string;
 }
 
 export interface AccountSummary {

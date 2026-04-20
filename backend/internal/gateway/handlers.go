@@ -35,7 +35,7 @@ func HandleTransfer(rabbit *broker.RabbitMQ, repo *db.AuthRepository) http.Handl
 			return
 		}
 
-		transfer, err := models.NewTransaction(senderID, receiverUser.ID, req.Description, req.Amount)
+		transfer, err := models.NewTransaction(req.ReceiverEmail, senderID, receiverUser.ID, req.Description, req.Amount)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return

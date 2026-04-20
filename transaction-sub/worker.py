@@ -23,6 +23,7 @@ def process_transfer(ch, method, properties, body):
 
         sender_id = payload.get("sender_id")
         receiver_id = payload.get("receiver_id")
+        receiver_email = payload.get("receiver_email")
         amount = float(payload.get("amount"))
         tx_id = payload.get("id")
         description = payload.get("description", "Transferência")
@@ -39,6 +40,7 @@ def process_transfer(ch, method, properties, body):
                 "id": f"{tx_id}_DEBIT",
                 "user_id": sender_id,
                 "related_user": receiver_id,
+                "receiver_email": receiver_email,
                 "amount": -amount,  # Negativo para o remetente
                 "type": "DEBIT",
                 "status": "SUCCESS",
@@ -49,6 +51,7 @@ def process_transfer(ch, method, properties, body):
                 "id": f"{tx_id}_CREDIT",
                 "user_id": receiver_id,
                 "related_user": sender_id,
+                "receiver_email": receiver_email,
                 "amount": amount,  # Positivo para o recebedor
                 "type": "CREDIT",
                 "status": "SUCCESS",
@@ -65,6 +68,7 @@ def process_transfer(ch, method, properties, body):
 
         # 3. Atualizar Dashboards (Saldos e Variância)
         # Atualiza Remetente
+        # monthly_variance
         db.user_dashboards.update_one(
             {"user_id": sender_id},
             {
@@ -74,6 +78,7 @@ def process_transfer(ch, method, properties, body):
         )
 
         # Atualiza Destinatário
+        # monthly_variance
         db.user_dashboards.update_one(
             {"user_id": receiver_id},
             {

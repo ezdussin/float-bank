@@ -51,14 +51,6 @@ import { RouterLink } from '@angular/router';
                     {{ ledgerService.balance() | currency:'USD':'symbol':'1.2-2' }}
                   </span>
                 </div>
-                
-                <div class="mt-8 flex items-center gap-4">
-                  <div class="{{ ledgerService.monthlyVariance() < 0 ? 'bg-red-500/10' : 'bg-emerald-500/10' }} px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1">
-                    <svg lucideArrowUpRight class="w-4 h-4 {{ ledgerService.monthlyVariance() < 0 ? 'text-red-400' : 'text-emerald-400' }}"></svg>
-                    <span class="text-xs {{ ledgerService.monthlyVariance() < 0 ? 'text-red-400' : 'text-emerald-400' }} font-semibold">{{ledgerService.monthlyVariance()}}%</span>
-                  </div>
-                  <span class="text-xs text-indigo-200/40">From last month</span>
-                </div>
               </div>
             </div>
 
@@ -96,18 +88,19 @@ import { RouterLink } from '@angular/router';
 
                 <div *ngFor="let tx of ledgerService.transactions()" class="group flex items-center justify-between p-4 rounded-2xl hover:bg-white/5 transition-all border border-transparent hover:border-white/5">
                   <div class="flex items-center gap-4">
-                    <div [class]="tx.type === 'CREDIT' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'" class="w-12 h-12 rounded-xl flex items-center justify-center">
-                      <svg *ngIf="tx.type === 'CREDIT'" lucideArrowDownLeft class="w-6 h-6"></svg>
-                      <svg *ngIf="tx.type !== 'CREDIT'" lucideArrowUpRight class="w-6 h-6"></svg>
+                    <div [class]="tx.type == 'CREDIT' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'" class="w-12 h-12 rounded-xl flex items-center justify-center">
+                      <svg *ngIf="tx.type == 'CREDIT'" lucideArrowDownLeft class="w-6 h-6"></svg>
+                      <svg *ngIf="tx.type == 'DEBIT'" lucideArrowUpRight class="w-6 h-6"></svg>
                     </div>
                     <div>
-                      <p class="font-semibold text-slate-100">{{ tx.description }}</p>
+                      <!-- <p class="font-semibold text-slate-100">{{ tx.description }}</p> -->
+                      <p class="font-semibold text-slate-100">{{tx.type == 'CREDIT' ? 'Recebido de' : 'Enviado para'}}: {{ tx.receiver_email }}</p>
                       <p class="text-xs text-indigo-300/40">{{ tx.createdAt | date:'medium' }}</p>
                     </div>
                   </div>
                   <div class="text-right">
-                    <p [class]="tx.type === 'CREDIT' ? 'text-emerald-400' : 'text-slate-100'" class="font-bold text-lg">
-                      {{ tx.type === 'CREDIT' ? '+' : '-' }}{{ tx.amount | currency }}
+                    <p [class]="tx.type == 'CREDIT' ? 'text-emerald-400' : 'text-slate-100'" class="font-bold text-lg">
+                      {{ tx.type == 'CREDIT' ? '+' : '- ' }}{{ tx.amount | currency }}
                     </p>
                     <span [class]="getStatusClass(tx.status)" class="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">
                       {{ tx.status }}
