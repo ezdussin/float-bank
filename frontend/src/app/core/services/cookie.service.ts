@@ -6,14 +6,15 @@ import { isPlatformBrowser } from '@angular/common';
 })
 export class CookieService {
   private platformId = inject(PLATFORM_ID);
-  
-  // Try to inject the REQUEST token. In SSR, this will be provided by the server engine.
   private request = inject(REQUEST, { optional: true });
+  // In some environments, the native Request class can be injected as a token
+  private nativeRequest = inject(Request as any, { optional: true });
 
   get(name: string): string | null {
     if (isPlatformBrowser(this.platformId)) {
+      const cookieString = document.cookie;
       const nameLenPlus = (name.length + 1);
-      return document.cookie
+      const value = cookieString
         .split(';')
         .map(c => c.trim())
         .filter(cookie => {
@@ -22,11 +23,36 @@ export class CookieService {
         .map(cookie => {
           return decodeURIComponent(cookie.substring(nameLenPlus));
         })[0] || null;
+
+      return value;
     } else {
       // Server side: read from Request headers
-      const cookieHeader = this.request?.headers?.get('cookie') || '';
+      let cookieHeader = '';
+      
+      // Try multiple ways to get the request/headers
+      const req = (this.request || this.nativeRequest) as any;
+      
+      console.log(`[CookieService] Server: Inspecting Request`, { 
+        tokenRequest: !!this.request,
+        nativeRequest: !!this.nativeRequest,
+        type: req?.constructor?.name,
+        hasHeaders: !!req?.headers,
+        hasHeadersGet: typeof req?.headers?.get === 'function'
+      });
+
+      if (req?.headers?.get) {
+        // Fetch API / Angular 19+ Engine
+        cookieHeader = req.headers.get('cookie') || '';
+      } else if (req?.get) {
+        // Express API fallback
+        cookieHeader = req.get('cookie') || '';
+      } else if (req?.headers) {
+        // Header object fallback
+        cookieHeader = req.headers['cookie'] || '';
+      }
+
       const nameLenPlus = (name.length + 1);
-      return cookieHeader
+      const value = cookieHeader
         .split(';')
         .map((c: string) => c.trim())
         .filter((cookie: string) => {
@@ -35,6 +61,8 @@ export class CookieService {
         .map((cookie: string) => {
           return decodeURIComponent(cookie.substring(nameLenPlus));
         })[0] || null;
+
+      return value;
     }
   }
 
@@ -48,9 +76,6 @@ export class CookieService {
       }
       document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
     }
-    // For simplicity, we don't set cookies from the server side in this helper,
-    // as it requires injecting the RESPONSE and modifying headers before rendering starts.
-    // Setting cookies is usually a client-side action after login.
   }
 
   delete(name: string) {

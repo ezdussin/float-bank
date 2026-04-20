@@ -1,0 +1,12 @@
+{
+  "user_id": "d76dac2e-a2d1-4640-8a1d-a0ae832acd90",
+  "account": {
+    "id": "ACC-ENZO-001",
+    "fullName": "Enzo Dussin",
+    "balance": 4250.75,
+    "currency": "BRL"
+  },
+  "updated_at": {
+    "$date": "2026-04-19T21:45:00Z"
+  }
+}

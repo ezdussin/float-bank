@@ -53,9 +53,9 @@ import { RouterLink } from '@angular/router';
                 </div>
                 
                 <div class="mt-8 flex items-center gap-4">
-                  <div class="bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1">
-                    <svg lucideArrowUpRight class="w-4 h-4 text-emerald-400"></svg>
-                    <span class="text-xs text-emerald-400 font-semibold">+2.4%</span>
+                  <div class="{{ ledgerService.monthlyVariance() < 0 ? 'bg-red-500/10' : 'bg-emerald-500/10' }} px-3 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1">
+                    <svg lucideArrowUpRight class="w-4 h-4 {{ ledgerService.monthlyVariance() < 0 ? 'text-red-400' : 'text-emerald-400' }}"></svg>
+                    <span class="text-xs {{ ledgerService.monthlyVariance() < 0 ? 'text-red-400' : 'text-emerald-400' }} font-semibold">{{ledgerService.monthlyVariance()}}%</span>
                   </div>
                   <span class="text-xs text-indigo-200/40">From last month</span>
                 </div>
@@ -149,7 +149,7 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     const user = this.authService.currentUser();
     if (user?.email) {
-      this.ledgerService.fetchDashboardData(user.email).subscribe();
+      this.ledgerService.fetchDashboard().subscribe();
     }
   }
 

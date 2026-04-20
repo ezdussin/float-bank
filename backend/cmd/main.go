@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"float-bank/internal/gateway"
+	"float-bank/internal/gateway/broker"
 	"float-bank/internal/gateway/db"
 	"log"
 	"net/http"
@@ -23,7 +25,19 @@ func main() {
 	}
 	defer authRepo.DB.Close()
 
-	// O main nem sabe que é Postgres ou Cockroach, ele só recebe o repo
+	readRepo, err := db.InitReadDB()
+	if err != nil {
+		log.Fatal("Falha ao iniciar banco de leitura:", err)
+	}
+	defer readRepo.Client.Disconnect(context.Background())
+
+	rabbit, err := broker.InitRabbitMQ()
+	if err != nil {
+		log.Printf("Aviso: Falha ao conectar ao RabbitMQ: %v", err)
+	} else {
+		defer rabbit.Close()
+	}
+
 	log.Println("Gateway iniciado com sucesso")
 
 	// Public routes
@@ -31,8 +45,9 @@ func main() {
 	mux.HandleFunc("POST "+prefix+"/register", gateway.HandleRegister(authRepo))
 
 	// Protected routes
-	mux.Handle("POST "+prefix+"/transfer", gateway.AuthMiddleware(http.HandlerFunc(gateway.HandleTransfer)))
-	mux.Handle("GET "+prefix+"/history", gateway.AuthMiddleware(http.HandlerFunc(gateway.HandleHistory)))
+	mux.Handle("POST "+prefix+"/transfer", gateway.AuthMiddleware(gateway.HandleTransfer(rabbit, authRepo)))
+	mux.Handle("GET "+prefix+"/transactions", gateway.AuthMiddleware(http.HandlerFunc(gateway.GetTransactionHistory(readRepo))))
+	mux.Handle("GET "+prefix+"/dashboard", gateway.AuthMiddleware(http.HandlerFunc(gateway.GetDashboard(readRepo))))
 
 	log.Println("Gateway FLOAT rodando na porta :8080")
 	log.Fatal(http.ListenAndServe(":8080", gateway.CORSMiddleware(mux)))

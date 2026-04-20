@@ -52,15 +52,15 @@ import { v4 as uuid } from 'uuid';
               </div>
             </div>
 
-            <!-- To Account -->
+            <!-- To Email -->
             <div class="space-y-3">
-              <label class="text-sm font-semibold text-indigo-300/40 uppercase tracking-widest px-2">Destination Account ID</label>
+              <label class="text-sm font-semibold text-indigo-300/40 uppercase tracking-widest px-2">Receiver Email Address</label>
               <div class="relative group">
                 <svg lucideUser class="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-300/40 group-focus-within:text-[#10B981] transition-colors"></svg>
                 <input 
-                  type="text" 
-                  formControlName="toAccountId"
-                  placeholder="e.g. ACC-77821-X"
+                  type="email" 
+                  formControlName="receiver_email"
+                  placeholder="e.g. colleague@example.com"
                   class="w-full bg-white/5 border border-white/10 rounded-3xl py-6 pl-14 pr-6 text-white placeholder:text-indigo-300/20 focus:outline-none focus:ring-2 focus:ring-[#10B981]/50 focus:border-[#10B981] transition-all font-mono"
                 />
               </div>
@@ -141,9 +141,9 @@ export class TransferComponent implements OnInit {
   private router = inject(Router);
 
   transferForm = this.fb.group({
-    toAccountId: ['', [Validators.required]],
+    receiver_email: ['', [Validators.required, Validators.email]],
     amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
-    description: ['', [Validators.required, Validators.minLength(3)]]
+    description: ['', [Validators.minLength(3)]]
   });
 
   isLoading = signal(false);
@@ -157,7 +157,7 @@ export class TransferComponent implements OnInit {
     // Ensure we have current data
     const user = this.authService.currentUser();
     if (user?.email) {
-      this.ledgerService.fetchDashboardData(user.email).subscribe();
+      this.ledgerService.fetchDashboard().subscribe();
     }
   }
 
@@ -178,7 +178,7 @@ export class TransferComponent implements OnInit {
       this.ledgerService.transfer(command).subscribe({
         next: (res: any) => {
           this.isLoading.set(false);
-          this.successMessage.set(`Transaction ID: ${res.transaction_id}`);
+          this.successMessage.set(`Transaction ID: ${res.id}`);
           this.transferForm.disable();
         },
         error: (err) => {

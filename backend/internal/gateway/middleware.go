@@ -1,12 +1,17 @@
 package gateway
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
 )
+
+type contextKey string
+
+const UserIDKey contextKey = "user_id"
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -28,11 +33,20 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// 2. (Optional) Inject user info into context
-		// ctx := context.WithValue(r.Context(), "user", token.Claims)
-		// next.ServeHTTP(w, r.WithContext(ctx))
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			http.Error(w, "Invalid Claims", http.StatusUnauthorized)
+			return
+		}
 
-		next.ServeHTTP(w, r)
+		userID, ok := claims["user_id"].(string)
+		if !ok {
+			http.Error(w, "User ID not found in token", http.StatusUnauthorized)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), UserIDKey, userID)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

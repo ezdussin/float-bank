@@ -1,17 +1,24 @@
-import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { inject, PLATFORM_ID } from '@angular/core';
+import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { isPlatformBrowser } from '@angular/common';
 
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = (_, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const platformId = inject(PLATFORM_ID);
 
-  console.log('User is authenticated', authService.isAuthenticated());
-  if (authService.isAuthenticated()) {
+  const isAuth = authService.isAuthenticated();
+  const hasToken = !!authService.token();
+
+  if (isAuth) {
     return true;
   }
 
-  // Redirect to login page if not authenticated
+  if (!isPlatformBrowser(platformId)) {
+    return true;
+  }
+
   router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
   return false;
 };

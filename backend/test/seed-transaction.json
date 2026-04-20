@@ -1,0 +1,46 @@
+[
+  {
+    "id": "tx-888",
+    "user_id": "d76dac2e-a2d1-4640-8a1d-a0ae832acd90",
+    "amount": -150.00,
+    "type": "DEBIT",
+    "status": "SUCCESS",
+    "description": "Supermercado Extra",
+    "createdAt": {
+      "$date": "2026-04-19T18:30:00Z"
+    }
+  },
+  {
+    "id": "tx-889",
+    "user_id": "d76dac2e-a2d1-4640-8a1d-a0ae832acd90",
+    "amount": 2500.00,
+    "type": "CREDIT",
+    "status": "SUCCESS",
+    "description": "Depósito via PIX",
+    "createdAt": {
+      "$date": "2026-04-19T14:20:00Z"
+    }
+  },
+  {
+    "id": "tx-890",
+    "user_id": "d76dac2e-a2d1-4640-8a1d-a0ae832acd90",
+    "amount": -45.90,
+    "type": "DEBIT",
+    "status": "SUCCESS",
+    "description": "Assinatura Claude Pro",
+    "createdAt": {
+      "$date": "2026-04-18T10:00:00Z"
+    }
+  },
+  {
+    "id": "tx-891",
+    "user_id": "d76dac2e-a2d1-4640-8a1d-a0ae832acd90",
+    "amount": -12.50,
+    "type": "DEBIT",
+    "status": "SUCCESS",
+    "description": "Padaria SBC",
+    "createdAt": {
+      "$date": "2026-04-18T08:15:00Z"
+    }
+  }
+]

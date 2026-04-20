@@ -7,9 +7,10 @@ import (
 )
 
 type User struct {
-	FullName string
-	Email    string
-	Password string
+	ID       string `json:"id"`
+	FullName string `json:"full_name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // NewUser atua como o "Constructor" que valida os dados

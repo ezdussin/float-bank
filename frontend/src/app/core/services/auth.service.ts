@@ -1,10 +1,11 @@
-import { Injectable, signal, computed, inject } from '@angular/core';
+import { Injectable, signal, computed, inject, makeStateKey, TransferState, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { catchError, tap } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { AuthResponse } from '../models/ledger.models';
 import { CookieService } from './cookie.service';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -14,12 +15,33 @@ export class AuthService {
   private router = inject(Router);
   private cookieService = inject(CookieService);
   private readonly baseUrl = 'http://localhost:8080/api/v1';
+  private platformId = inject(PLATFORM_ID);
 
   // Signals for state management
   private authState = signal<{ token: string | null; user: AuthResponse['user'] | null }>({
-    token: this.cookieService.get('float_token'),
-    user: JSON.parse(this.cookieService.get('float_user') || 'null')
+    token: null,
+    user: null
   });
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.hydrateStateFromCookies();
+    }
+  }
+
+  private hydrateStateFromCookies() {
+    const token = this.cookieService.get('float_token');
+    const userStr = this.cookieService.get('float_user');
+
+    if (token) {
+      try {
+        const user = userStr ? JSON.parse(userStr) : null;
+        this.authState.set({ token, user });
+      } catch (e) {
+        console.error('Failed to parse user from cookies', e);
+      }
+    }
+  }
 
   // Computed signals for easy access
   isAuthenticated = computed(() => !!this.authState().token);
